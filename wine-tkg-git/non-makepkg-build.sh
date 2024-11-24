@@ -32,14 +32,14 @@
 #
 #   curl fontforge fonttools libsdl2-dev python3-tk
 #
-# !!! _sdl_joy_support="true" (default setting) would require libsdl2-dev:i386 but due to a conflict between libsdl2-dev:i386 and libmirclientcpp-dev 
+# !!! _sdl_joy_support="true" (default setting) would require libsdl2-dev:i386 but due to a conflict between libsdl2-dev:i386 and libmirclientcpp-dev
 #     (at least on 19.04) you're kinda frogged and should set _sdl_joy_support to "false" to build successfully. You'll lose SDL2 support on 32-bit apps !!!
 #
 # You're on your own to resolve additional dependencies you might want to build with, such as Faudio.
 #
 # ===========================================================================================================================================================================
 
-pkgname=wine-tkg
+pkgname=wine-mu
 _build_in_tmpfs="true"
 _esyncsrcdir='esync'
 _where="$PWD" # Track the base directory as different Arch-based distros are moving srcdir around
@@ -228,7 +228,7 @@ nonuser_patcher() {
       _fullpatchmsg=" -- ( $_patchmsg )"
     fi
     # Pretty ugly - maybe make it more dynamic? Find?
-    msg2 "Applying ${_patchname}"    
+    msg2 "Applying ${_patchname}"
     echo -e "\n${_patchname}${_fullpatchmsg}" >>"$_where"/prepare.log
     if [ -n "$_patchpath" ]; then
       if [ -f "${_patchpath%/*}"/mainline/"$_patchname" ] || [ -f "${_patchpath%/*}"/mainline/legacy/"$_patchname" ]; then
