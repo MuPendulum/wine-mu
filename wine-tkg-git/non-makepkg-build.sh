@@ -39,7 +39,7 @@
 #
 # ===========================================================================================================================================================================
 
-pkgname=wine-tkg
+pkgname=wine-mu
 _build_in_tmpfs="true"
 _esyncsrcdir='esync'
 _where="$PWD" # Track the base directory as different Arch-based distros are moving srcdir around
