@@ -1,0 +1,54 @@
+From 4703b100e324673214247b60a1172fae5f10c22e Mon Sep 17 00:00:00 2001
+From: Paul Gofman <pgofman@codeweavers.com>
+Date: Thu, 17 Nov 2022 20:00:24 -0600
+Subject: [PATCH] ntdll: Return FILE_DEVICE_UNKNOWN for Unix FIFOs and sockets
+ from get_device_info().
+
+CW-Bug-Id: #21570
+---
+ dlls/ntdll/unix/file.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/dlls/ntdll/unix/file.c b/dlls/ntdll/unix/file.c
+index 54847281181..c251d9c1955 100644
+--- a/dlls/ntdll/unix/file.c
++++ b/dlls/ntdll/unix/file.c
+@@ -7026,7 +7026,7 @@ NTSTATUS get_device_info( int fd, FILE_FS_DEVICE_INFORMATION *info )
+     }
+     else if (S_ISFIFO( st.st_mode ) || S_ISSOCK( st.st_mode ))
+     {
+-        info->DeviceType = FILE_DEVICE_NAMED_PIPE;
++        info->DeviceType = FILE_DEVICE_UNKNOWN;
+     }
+     else if (is_device_placeholder( fd ))
+     {
+@@ -7135,10 +7135,11 @@ NTSTATUS WINAPI NtQueryVolumeInformationFile( HANDLE handle, IO_STATUS_BLOCK *io
+                                               void *buffer, ULONG length,
+                                               FS_INFORMATION_CLASS info_class )
+ {
++    enum server_fd_type fd_type;
+     int fd, needs_close;
+     unsigned int status;
+ 
+-    status = server_get_unix_fd( handle, 0, &fd, &needs_close, NULL, NULL );
++    status = server_get_unix_fd( handle, 0, &fd, &needs_close, &fd_type, NULL );
+     if (status == STATUS_BAD_DEVICE_TYPE)
+     {
+         struct async_irp *async;
+@@ -7205,7 +7206,15 @@ NTSTATUS WINAPI NtQueryVolumeInformationFile( HANDLE handle, IO_STATUS_BLOCK *io
+         {
+             FILE_FS_DEVICE_INFORMATION *info = buffer;
+ 
+-            if ((status = get_device_info( fd, info )) == STATUS_SUCCESS)
++            if (fd_type == FD_TYPE_SOCKET || fd_type == FD_TYPE_PIPE)
++            {
++                info->Characteristics = 0;
++                info->DeviceType = FILE_DEVICE_NAMED_PIPE;
++                status = STATUS_SUCCESS;
++            }
++            else status = get_device_info( fd, info );
++
++            if (!status)
+                 io->Information = sizeof(*info);
+         }
+         break;
