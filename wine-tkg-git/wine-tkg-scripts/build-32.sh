@@ -21,7 +21,7 @@ _exports_32() {
     fi
   elif [ -d '/usr/lib/i386-linux-gnu/pkgconfig' ]; then # Ubuntu 18.04/19.04 path
     export PKG_CONFIG_PATH='/usr/lib/i386-linux-gnu/pkgconfig'
-    if [[ "$_plain_version" = *_8.0 ]] || [[ "$_plain_version" = *_9.0 ]]; then
+    if [[ "$_plain_version" = *_8.0 ]] || [[ "$_plain_version" = *_9.0 ]] || [[ "$DEBIAN_CI" = 0 ]]; then
       CFLAGS+=" -I/usr/lib/i386-linux-gnu/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/include/gstreamer-1.0 -I/usr/lib/i386-linux-gnu/gstreamer-1.0/include"
       CROSSCFLAGS+=" -I/usr/lib/i386-linux-gnu/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/include/gstreamer-1.0 -I/usr/lib/i386-linux-gnu/gstreamer-1.0/include"
     fi
@@ -35,6 +35,11 @@ _exports_32() {
       CROSSCFLAGS+=" -I/usr/lib/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/include/gstreamer-1.0 -I/usr/lib/gstreamer-1.0/include"
     fi
   fi
+
+  echo "DEBIAN_CI = $DEBIAN_CI"
+  echo "CFLAGS = $CFLAGS"
+  echo "CROSSCFLAGS = $CROSSCFLAGS"
+  echo "PKG_CONFIG_PATH = $PKG_CONFIG_PATH"
 }
 
 _configure_32() {

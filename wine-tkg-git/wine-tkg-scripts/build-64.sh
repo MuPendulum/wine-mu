@@ -16,10 +16,22 @@ _exports_64() {
       fi
     fi
   fi
-  # If /usr/lib32 doesn't exist (such as on Fedora), make sure we're using /usr/lib64 for 64-bit pkgconfig path
-  if [ ! -d '/usr/lib32' ]; then
-    export PKG_CONFIG_PATH='/usr/lib64/pkgconfig'
+
+  if [[ $DEBIAN_CI = 0 ]]; then
+    export PKG_CONFIG_PATH='/usr/lib/x86_64-linux-gnu/pkgconfig'
+    CFLAGS+=" -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/include/gstreamer-1.0 -I/usr/lib/x86_64-linux-gnu/gstreamer-1.0/include"
+    CROSSCFLAGS+=" -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/glib-2.0 -I/usr/include/gstreamer-1.0 -I/usr/lib/x86_64-linux-gnu/gstreamer-1.0/include"
+  else
+    # If /usr/lib32 doesn't exist (such as on Fedora), make sure we're using /usr/lib64 for 64-bit pkgconfig path
+    if [[ ! -d '/usr/lib32' ]] && [[ -d '/usr/lib64/pkgconfig' ]]; then
+      export PKG_CONFIG_PATH='/usr/lib64/pkgconfig'
+    fi
   fi
+
+  echo "DEBIAN_CI = $DEBIAN_CI"
+  echo "CFLAGS = $CFLAGS"
+  echo "CROSSCFLAGS = $CROSSCFLAGS"
+  echo "PKG_CONFIG_PATH = $PKG_CONFIG_PATH"
 }
 
 _configure_64() {
